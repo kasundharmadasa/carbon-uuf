@@ -174,6 +174,7 @@ public class AppCreator {
                                        .collect(toList()));
         configuration.setCsrfIgnoreUris(Sets.newHashSet(appConfig.getSecurity().getCsrfIgnoreUris()));
         configuration.setXssIgnoreUris(Sets.newHashSet(appConfig.getSecurity().getXssIgnoreUris()));
+        configuration.setOpenRedirectAllowedUris(Sets.newHashSet(appConfig.getSecurity().getOpenRedirectAllowedUris()));
         configuration.setResponseHeaders(appConfig.getSecurity().getResponseHeaders().toConfigurationResponseHeaders());
         configuration.setOther(appConfig.getOther());
         return configuration;

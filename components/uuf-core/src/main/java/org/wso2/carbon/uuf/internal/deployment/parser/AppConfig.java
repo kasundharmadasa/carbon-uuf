@@ -411,6 +411,7 @@ public class AppConfig {
 
         private List<String> csrfIgnoreUris = Collections.emptyList();
         private List<String> xssIgnoreUris = Collections.emptyList();
+        private List<String> openRedirectAllowedUris = Collections.emptyList();
         private ResponseHeaders responseHeaders = new ResponseHeaders();
 
         /**
@@ -447,6 +448,23 @@ public class AppConfig {
          */
         public void setXssIgnoreUris(List<String> xssIgnoreUris) {
             this.xssIgnoreUris = (xssIgnoreUris == null) ? Collections.emptyList() : xssIgnoreUris;
+        }
+
+        /**
+         * Returns the list of URI's that are allowed to redirect.
+         *
+         * @return list of URI's that are allowed to redirect.
+         */
+        public List<String> getOpenRedirectAllowedUris() {
+            return openRedirectAllowedUris;
+        }
+
+        /**
+         * Sets the list of URI's that are allowed to redirect.
+         * @param openRedirectAllowedUris list of URI's that are allowed to redirect.
+         */
+        public void setOpenRedirectAllowedUris(List<String> openRedirectAllowedUris) {
+            this.openRedirectAllowedUris = (openRedirectAllowedUris == null) ? Collections.emptyList() : openRedirectAllowedUris;
         }
 
         /**

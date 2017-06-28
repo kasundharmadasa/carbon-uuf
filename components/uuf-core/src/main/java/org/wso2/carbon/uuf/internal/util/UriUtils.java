@@ -25,11 +25,16 @@ import org.wso2.carbon.uuf.core.Page;
 import org.wso2.carbon.uuf.core.Theme;
 import org.wso2.carbon.uuf.internal.io.StaticResolver;
 
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 public class UriUtils {
 
     public static final String COMPONENT_STATIC_RESOURCES_URI_PREFIX = "/public/components";
     public static final String THEMES_STATIC_RESOURCES_URI_PREFIX = "/public/themes/";
     public static final String FRAGMENTS_URI_PREFIX = "/fragments/";
+    private static final String URL_DOMAIN_REGEX = ".?(\\://)((?:www.)?([^\\/]+))";
+    private static final String URL_PREFIX_REGEX = "^(http|https)://.*";
 
     public static String getPublicUri(Component component, Page page) {
         return COMPONENT_STATIC_RESOURCES_URI_PREFIX + component.getContextPath() + "/" +
@@ -47,5 +52,18 @@ public class UriUtils {
 
     public static String getPublicUri(Theme theme) {
         return THEMES_STATIC_RESOURCES_URI_PREFIX + theme.getName();
+    }
+
+    public String getDomain(String url){
+        Pattern pattern = Pattern.compile(URL_DOMAIN_REGEX);
+        if(!url.matches(URL_PREFIX_REGEX)){
+            throw new IllegalArgumentException("URL needs to be an absolute URL starting with http or https ");
+        }
+        Matcher matcher = pattern.matcher(url);
+        if (matcher.find()) {
+            return matcher.group(2);
+        } else{
+            throw new IllegalArgumentException("Invalid URL"+ url);
+        }
     }
 }

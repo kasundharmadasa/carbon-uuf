@@ -35,6 +35,7 @@ import org.wso2.carbon.uuf.internal.filter.CsrfFilter;
 import org.wso2.carbon.uuf.internal.filter.Filter;
 import org.wso2.carbon.uuf.internal.filter.FilterResult;
 import org.wso2.carbon.uuf.internal.io.StaticResolver;
+import org.wso2.carbon.uuf.internal.util.UriUtils;
 import org.wso2.carbon.uuf.spi.HttpRequest;
 import org.wso2.carbon.uuf.spi.HttpResponse;
 
@@ -54,10 +55,12 @@ import static org.wso2.carbon.uuf.spi.HttpResponse.STATUS_FOUND;
 import static org.wso2.carbon.uuf.spi.HttpResponse.STATUS_INTERNAL_SERVER_ERROR;
 import static org.wso2.carbon.uuf.spi.HttpResponse.STATUS_NOT_FOUND;
 import static org.wso2.carbon.uuf.spi.HttpResponse.STATUS_OK;
+import static org.wso2.carbon.uuf.spi.HttpResponse.STATUS_FORBIDDEN;
 
 public class RequestDispatcher {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RequestDispatcher.class);
+    private static final String URL_PREFIX_REGEX = "^(http|https)://.*";
 
     private final StaticResolver staticResolver;
     private final Debugger debugger;
@@ -94,7 +97,7 @@ public class RequestDispatcher {
         }
         if (app == null) {
             serveDefaultErrorPage(STATUS_NOT_FOUND,
-                                  "Cannot find an app for context path '" + request.getContextPath() + "'.", response);
+                    "Cannot find an app for context path '" + request.getContextPath() + "'.", response);
             return;
         }
 
@@ -111,8 +114,22 @@ public class RequestDispatcher {
                 servePageOrFragment(app, request, response);
             }
         } catch (PageRedirectException e) {
-            response.setStatus(STATUS_FOUND);
-            response.setHeader(HEADER_LOCATION, e.getRedirectUrl());
+            if(!e.getRedirectUrl().matches(URL_PREFIX_REGEX) || new UriUtils().getDomain(e.getRedirectUrl())
+                    .equals(request.getHeaders().get("Host"))) {
+                response.setStatus(STATUS_FOUND);
+                response.setHeader(HEADER_LOCATION, e.getRedirectUrl());
+            } else {
+               if(app.getConfiguration().getOpenRedirectAllowedUris().stream().filter(uriPatten -> uriPatten
+                       .matches(request.getUriWithoutContextPath())).findFirst().isPresent()){
+                   response.setStatus(STATUS_FOUND);
+                   response.setHeader(HEADER_LOCATION, e.getRedirectUrl());
+               } else {
+                   String msg = "This redirect failed because the request URI is not whitelisted for open redirection '"
+                           + request + "'.";
+                   LOGGER.error(msg, e);
+                   serveDefaultErrorPage(STATUS_FORBIDDEN, msg, response);
+               }
+            }
         } catch (HttpErrorException e) {
             serveDefaultErrorPage(e.getHttpStatusCode(), e.getMessage(), response);
         } catch (UUFRuntimeException e) {

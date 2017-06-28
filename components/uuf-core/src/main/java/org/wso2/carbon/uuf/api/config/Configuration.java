@@ -57,6 +57,7 @@ public class Configuration {
     private ListMultimap<String, MenuItem> menus;
     private Set<UriPatten> csrfIgnoreUris;
     private Set<UriPatten> xssIgnoreUris;
+    private Set<UriPatten> openRedirectAllowedUris;
     private ResponseHeaders responseHeaders;
     private Map<String, Object> otherConfigurations;
 
@@ -393,6 +394,43 @@ public class Configuration {
                 }
             }
             this.xssIgnoreUris = unmodifiableSet(xssIgnoreUriPatterns);
+        }
+    }
+
+    /**
+     * Returns the list of URI's that are allowed to redirect.
+     *
+     * @return set of URI's that are allowed to redirect.
+     */
+    public Set<UriPatten> getOpenRedirectAllowedUris() {
+        return openRedirectAllowedUris;
+    }
+
+    /**
+     * Sets the list of URI's that are allowed to redirect.
+     *
+     * @param openRedirectAllowedUris set of URI's that are allowed to redirect.
+     * @throws IllegalArgumentException if a pattern is null or empty
+     */
+    public void setOpenRedirectAllowedUris(Set<String> openRedirectAllowedUris) {
+        if (openRedirectAllowedUris == null) {
+            this.openRedirectAllowedUris = emptySet();
+        } else {
+            Set<UriPatten> openRedirectAllowedUrisPatterns = new HashSet<>();
+            for (String openRedirectUris : openRedirectAllowedUris) {
+                if (openRedirectUris == null) {
+                    throw new IllegalArgumentException("Redirect allowed URI pattern cannot be null.");
+                } else if (openRedirectUris.isEmpty()) {
+                    throw new IllegalArgumentException("Redirect allowed URI pattern cannot be empty.");
+                }
+
+                try {
+                    openRedirectAllowedUrisPatterns.add(new UriPatten(openRedirectUris));
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException("Redirect allowed URI pattern '" + openRedirectUris + "' is invalid.", e);
+                }
+            }
+            this.openRedirectAllowedUris = unmodifiableSet(openRedirectAllowedUrisPatterns);
         }
     }
 
