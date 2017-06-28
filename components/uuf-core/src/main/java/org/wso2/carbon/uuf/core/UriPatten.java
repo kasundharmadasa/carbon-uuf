@@ -39,6 +39,7 @@ public class UriPatten implements Comparable<UriPatten> {
     private static final Pattern URI_VARIABLE_PATTERN = Pattern.compile("\\{(.+?)\\}");
     private static final String URI_VARIABLE_REGEX = "([^/]+)";
     private static final String PLUS_MARKED_URI_VARIABLE_REGEX = "(.+)";
+
     private final String patternString;
     private final Pattern pattern;
     private final List<String> variableNames;

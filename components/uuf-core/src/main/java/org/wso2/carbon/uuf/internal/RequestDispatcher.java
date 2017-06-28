@@ -114,21 +114,21 @@ public class RequestDispatcher {
                 servePageOrFragment(app, request, response);
             }
         } catch (PageRedirectException e) {
-            if(!e.getRedirectUrl().matches(URL_PREFIX_REGEX) || new UriUtils().getDomain(e.getRedirectUrl())
+            if (!e.getRedirectUrl().matches(URL_PREFIX_REGEX) || new UriUtils().getDomain(e.getRedirectUrl())
                     .equals(request.getHeaders().get("Host"))) {
                 response.setStatus(STATUS_FOUND);
                 response.setHeader(HEADER_LOCATION, e.getRedirectUrl());
             } else {
-               if(app.getConfiguration().getOpenRedirectAllowedUris().stream().filter(uriPatten -> uriPatten
-                       .matches(request.getUriWithoutContextPath())).findFirst().isPresent()){
-                   response.setStatus(STATUS_FOUND);
-                   response.setHeader(HEADER_LOCATION, e.getRedirectUrl());
-               } else {
-                   String msg = "This redirect failed because the request URI is not whitelisted for open redirection '"
-                           + request + "'.";
-                   LOGGER.error(msg, e);
-                   serveDefaultErrorPage(STATUS_FORBIDDEN, msg, response);
-               }
+                if (app.getConfiguration().getOpenRedirectAllowedUris().stream().filter(uriPatten -> uriPatten
+                        .matches(request.getUriWithoutContextPath())).findFirst().isPresent()) {
+                    response.setStatus(STATUS_FOUND);
+                    response.setHeader(HEADER_LOCATION, e.getRedirectUrl());
+                } else {
+                    String msg = "This redirect failed because the request URI is not whitelisted for open redirection '"
+                            + request + "'.";
+                    LOGGER.error(msg, e);
+                    serveDefaultErrorPage(STATUS_FORBIDDEN, msg, response);
+                }
             }
         } catch (HttpErrorException e) {
             serveDefaultErrorPage(e.getHttpStatusCode(), e.getMessage(), response);
