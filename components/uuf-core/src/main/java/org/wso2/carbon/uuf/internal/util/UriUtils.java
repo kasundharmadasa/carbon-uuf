@@ -62,7 +62,7 @@ public class UriUtils {
         Matcher matcher = pattern.matcher(url);
         if (matcher.find()) {
             return matcher.group(2);
-        } else{
+        } else {
             throw new IllegalArgumentException("Invalid URL"+ url);
         }
     }
